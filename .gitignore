@@ -1,26 +1,26 @@
-# API Credentials - NEVER commit these!
+# Environment variables
 .env
-config.json
-credentials.json
 
-# System files
+# Logs
+trades.log
+trades.json
+*.log
+
+# Dependencies
+node_modules/
+
+# OS files
 .DS_Store
 Thumbs.db
-
-# Python cache
-__pycache__/
-*.pyc
 
 # IDE
 .vscode/
 .idea/
+*.swp
+*.swo
 
-# Logs
-*.log
-
-# Temporary files
-*.tmp
-*.bak
-
-node_modules
+# Package manager
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
 
