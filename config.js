@@ -39,7 +39,7 @@ module.exports = {
 
   // === RISK MANAGEMENT ===
   risk: {
-    riskPercentage: 0.25, // Risk 1% of account per trade (1-2% recommended)
+    riskPercentage: 1, // Risk 1% of account per trade (1-2% recommended)
     takeProfitMultiplier: 2, // TP = 2× Stop Loss (1.5-2x recommended)
     stopLossATRMultiplier: 1, // Stop loss = 1× ATR
     maxTradesPerDay: 3, // Maximum trades per day (3-5 recommended)

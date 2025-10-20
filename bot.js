@@ -133,7 +133,7 @@ class TradingBot {
 
     if (this.currentPosition && this.currentPosition.size !== 0) {
       this.log(
-        `\n📍 Posición Actual: ${this.currentPosition.side} ${this.currentPosition.size} @ $${this.currentPosition.entryPrice}`
+        `📍 Posición Actual: ${this.currentPosition.side} ${this.currentPosition.size} @ $${this.currentPosition.entryPrice}`
       );
 
       // Check if we should exit based on indicators
@@ -202,14 +202,6 @@ class TradingBot {
       this.log("🟢 ¡SEÑAL DE ENTRADA LONG DETECTADA!");
       longSignal.reasons.forEach((reason) => this.log(`   ${reason}`));
 
-      // Send notification for LONG signal
-      this.notify({
-        title: "🟢 LONG Signal Detected",
-        message: `${config.symbol}\nPrice: $${indicators.currentPrice.toFixed(
-          2
-        )}\nRSI: ${indicators.rsi.toFixed(2)}`,
-      });
-
       await this.enterPosition("LONG", indicators);
     } else if (longSignal.reasons.length > 0) {
       this.log("⚪ Sin señal LONG:");
@@ -220,13 +212,6 @@ class TradingBot {
     if (shortSignal.signal) {
       this.log("🔴 ¡SEÑAL DE ENTRADA SHORT DETECTADA!");
       shortSignal.reasons.forEach((reason) => this.log(`   ${reason}`));
-
-      this.notify({
-        title: "🔴 SHORT Signal Detected",
-        message: `${config.symbol}\nPrice: $${indicators.currentPrice.toFixed(
-          2
-        )}\nRSI: ${indicators.rsi.toFixed(2)}`,
-      });
 
       await this.enterPosition("SHORT", indicators);
     } else if (shortSignal.reasons.length > 0) {
@@ -244,7 +229,7 @@ class TradingBot {
       const balance = await this.api.getBalance();
       const accountBalance = balance.availableMargin;
 
-      this.log(`\n💼 Saldo de Cuenta: $${accountBalance.toFixed(2)}`);
+      this.log(`💼 Saldo de Cuenta: $${accountBalance.toFixed(2)}`);
 
       if (accountBalance < 10) {
         this.log("⚠️ Saldo insuficiente para operar");
@@ -321,7 +306,7 @@ class TradingBot {
       this.log(`   Entrada: $${summary.entryPrice}`);
       this.log(`   Stop Loss: $${summary.stopLoss}`);
       this.log(`   Take Profit: $${summary.takeProfit}`);
-      this.log(`   Tamaño de Posición: ${summary.positionSize}`);
+      this.log(`   Tamaño de Posición: ${formattedSize}`);
       this.log(
         `   Riesgo: $${summary.riskAmount} (${summary.riskPercentage}%)`
       );

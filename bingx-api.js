@@ -105,6 +105,9 @@ class BingXAPI {
    * Get account balance
    */
   async getBalance() {
+    if (this.testMode) {
+      return { asset: "USDT", balance: 100, availableMargin: 100 };
+    }
     try {
       const response = await this.request(
         "GET",
@@ -169,33 +172,22 @@ class BingXAPI {
         side: side.toUpperCase(), // BUY or SELL
         positionSide: side.toUpperCase() === "BUY" ? "LONG" : "SHORT",
         type: "MARKET",
-        quantity: quantity.toString(),
+        quantity,
+        takeProfit: JSON.stringify({
+          type: "TAKE_PROFIT_MARKET",
+          stopPrice: takeProfit.toString(),
+          price: takeProfit.toString(),
+          workingType: "MARK_PRICE",
+        }),
+        stopLoss: JSON.stringify({
+          type: "STOP_MARKET",
+          stopPrice: stopLoss.toString(),
+          price: stopLoss.toString(),
+          workingType: "MARK_PRICE",
+        }),
       };
 
-      // Add stop loss if provided
-      if (stopLoss) {
-        params.stopPrice = stopLoss.toString();
-        params.workingType = "MARK_PRICE";
-      }
-
-      // Add take profit if provided
-      if (takeProfit) {
-        params.takeProfit = takeProfit.toString();
-      }
-
       const response = await this.request("POST", endpoint, params);
-
-      if (this.testMode) {
-        console.log("✓ ORDEN DE PRUEBA VALIDADA");
-        return {
-          success: true,
-          test: true,
-          orderId: "TEST_" + Date.now(),
-          symbol,
-          side,
-          quantity,
-        };
-      }
 
       if (response.code === 0 && response.data) {
         return {
