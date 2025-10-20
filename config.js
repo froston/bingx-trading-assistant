@@ -39,12 +39,12 @@ module.exports = {
 
   // === RISK MANAGEMENT ===
   risk: {
-    riskPercentage: 1.5, // Risk 1.5% of account per trade (1-2% recommended)
+    riskPercentage: 0.25, // Risk 1% of account per trade (1-2% recommended)
     takeProfitMultiplier: 2, // TP = 2× Stop Loss (1.5-2x recommended)
     stopLossATRMultiplier: 1, // Stop loss = 1× ATR
-    maxTradesPerDay: 5, // Maximum trades per day (3-5 recommended)
-    minPositionSize: 0.001, // Minimum position size in BTC
-    maxPositionSize: 1.0, // Maximum position size in BTC
+    maxTradesPerDay: 3, // Maximum trades per day (3-5 recommended)
+    minPositionSize: 0.000005, // Minimum position size BTC
+    maxPositionSize: 0.00002, // Maximum position size BTC
   },
 
   // === TRADING HOURS ===
@@ -56,7 +56,7 @@ module.exports = {
 
   // === BOT BEHAVIOR ===
   bot: {
-    checkInterval: 30000, // Check every 30 seconds (30000ms)
+    checkInterval: 120000, // Check every 30 seconds (30000ms)
     testMode: true, // Run in test mode
     logTrades: true, // Log all trading decisions
     logFile: "trades.log", // Log file name

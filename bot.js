@@ -37,12 +37,12 @@ class TradingBot {
   async start() {
     this.log("🚀 Starting BingX Trading Bot...");
     this.log(`📊 Symbol: ${config.symbol}`);
-    this.log(`⏱️  Interval: ${config.interval}`);
+    this.log(`⏱️ Interval: ${config.interval}`);
     this.log(
       `${
         config.bot.testMode
           ? "🧪 TEST MODE - No real orders will be placed"
-          : "⚠️  LIVE MODE - Real orders will be placed"
+          : "⚠️ LIVE MODE - Real orders will be placed"
       }`
     );
 
@@ -105,13 +105,13 @@ class TradingBot {
     );
 
     if (!candles || candles.length < config.indicators.emaSlow + 10) {
-      this.log("⚠️  Insufficient candle data");
+      this.log("⚠️ Insufficient candle data");
       return;
     }
 
     this.log(`📈 Fetched ${candles.length} candles`);
     this.log(
-      `   Current Price [${config.symbol}]: $${candles[
+      `🪙 Current Price [${config.symbol}]: $${candles[
         candles.length - 1
       ].close.toFixed(2)}`
     );
@@ -174,7 +174,7 @@ class TradingBot {
    * Display current indicator values
    */
   displayIndicators(indicators) {
-    this.log("\n📊 Technical Indicators:");
+    this.log("📊 Technical Indicators:");
     this.log(`   EMA20: ${indicators.emaFast?.toFixed(2) || "N/A"}`);
     this.log(`   EMA50: ${indicators.emaSlow?.toFixed(2) || "N/A"}`);
     this.log(`   MACD: ${indicators.macd?.macd?.toFixed(4) || "N/A"}`);
@@ -190,7 +190,7 @@ class TradingBot {
   async checkEntrySignals(analysis) {
     const { longSignal, shortSignal, indicators } = analysis;
 
-    this.log("\n🎯 Signal Analysis:");
+    this.log("🎯 Signal Analysis:");
 
     // Check LONG signal
     if (longSignal.signal) {
@@ -229,7 +229,7 @@ class TradingBot {
       this.log(`\n💼 Account Balance: $${accountBalance.toFixed(2)}`);
 
       if (accountBalance < 10) {
-        this.log("⚠️  Insufficient balance to trade");
+        this.log("⚠️ Insufficient balance to trade");
         return;
       }
 
@@ -273,7 +273,7 @@ class TradingBot {
           formattedSize
         )
       ) {
-        this.log("⚠️  Trade rejected by risk management");
+        this.log("⚠️ Trade rejected by risk management");
         return;
       }
 
@@ -298,7 +298,7 @@ class TradingBot {
         accountBalance
       );
 
-      this.log("\n🎯 TRADE SETUP:");
+      this.log("🎯 TRADE SETUP:");
       this.log(`   Type: ${summary.type}`);
       this.log(`   Entry: $${summary.entryPrice}`);
       this.log(`   Stop Loss: $${summary.stopLoss}`);
@@ -319,7 +319,7 @@ class TradingBot {
       );
 
       if (order.success) {
-        this.log(`\n✅ ${type} ORDER PLACED SUCCESSFULLY!`);
+        this.log(`✅ ${type} ORDER PLACED SUCCESSFULLY!`);
         this.log(`   Order ID: ${order.orderId}`);
         this.log(`   ${config.bot.testMode ? "(Test Order)" : ""}`);
 
@@ -346,7 +346,7 @@ class TradingBot {
    */
   async closePosition() {
     if (!this.currentPosition || this.currentPosition.size === 0) {
-      this.log("⚠️  No position to close");
+      this.log("⚠️ No position to close");
       return;
     }
 
