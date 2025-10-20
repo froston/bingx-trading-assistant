@@ -41,19 +41,19 @@ class Strategy {
       indicators.rsi === null ||
       !indicators.atr
     ) {
-      return { signal: false, reasons: ["Insufficient data for analysis"] };
+      return { signal: false, reasons: ["Datos insuficientes para análisis"] };
     }
 
     // 1. Uptrend check
     if (this.isUptrend(indicators.emaFast, indicators.emaSlow)) {
       reasons.push(
-        `✓ Uptrend (EMA20: ${indicators.emaFast.toFixed(
+        `✓ Tendencia alcista (EMA20: ${indicators.emaFast.toFixed(
           2
         )} > EMA50: ${indicators.emaSlow.toFixed(2)})`
       );
     } else {
       failures.push(
-        `✗ No uptrend (EMA20: ${indicators.emaFast.toFixed(
+        `✗ Sin tendencia alcista (EMA20: ${indicators.emaFast.toFixed(
           2
         )} < EMA50: ${indicators.emaSlow.toFixed(2)})`
       );
@@ -61,36 +61,36 @@ class Strategy {
 
     // 2. Breakout check
     if (indicators.bullishBreakout) {
-      reasons.push("✓ Bullish breakout detected");
+      reasons.push("✓ Ruptura alcista detectada");
     } else {
-      failures.push("✗ No bullish breakout");
+      failures.push("✗ Sin ruptura alcista");
     }
 
     // 3. MACD bullish cross
     if (indicators.macd.bullishCross) {
       reasons.push(
-        `✓ MACD bullish cross (MACD: ${indicators.macd.macd.toFixed(
+        `✓ Cruce alcista MACD (MACD: ${indicators.macd.macd.toFixed(
           4
-        )} > Signal: ${indicators.macd.signal.toFixed(4)})`
+        )} > Señal: ${indicators.macd.signal.toFixed(4)})`
       );
     } else {
       failures.push(
-        `✗ No MACD bullish cross (MACD: ${indicators.macd.macd?.toFixed(
+        `✗ Sin cruce alcista MACD (MACD: ${indicators.macd.macd?.toFixed(
           4
-        )} vs Signal: ${indicators.macd.signal?.toFixed(4)})`
+        )} vs Señal: ${indicators.macd.signal?.toFixed(4)})`
       );
     }
 
     // 4. RSI not overbought
     if (indicators.rsi < config.indicators.rsi.overbought) {
       reasons.push(
-        `✓ RSI not overbought (${indicators.rsi.toFixed(2)} < ${
+        `✓ RSI no sobrecomprado (${indicators.rsi.toFixed(2)} < ${
           config.indicators.rsi.overbought
         })`
       );
     } else {
       failures.push(
-        `✗ RSI overbought (${indicators.rsi.toFixed(2)} >= ${
+        `✗ RSI sobrecomprado (${indicators.rsi.toFixed(2)} >= ${
           config.indicators.rsi.overbought
         })`
       );
@@ -98,9 +98,9 @@ class Strategy {
 
     // 5. Volume confirmation
     if (indicators.volumeSpike) {
-      reasons.push("✓ Volume spike confirmed");
+      reasons.push("✓ Pico de volumen confirmado");
     } else {
-      failures.push("✗ No volume spike");
+      failures.push("✗ Sin pico de volumen");
     }
 
     // All conditions must be met
@@ -136,19 +136,19 @@ class Strategy {
       indicators.rsi === null ||
       !indicators.atr
     ) {
-      return { signal: false, reasons: ["Insufficient data for analysis"] };
+      return { signal: false, reasons: ["Datos insuficientes para análisis"] };
     }
 
     // 1. Downtrend check
     if (this.isDowntrend(indicators.emaFast, indicators.emaSlow)) {
       reasons.push(
-        `✓ Downtrend (EMA20: ${indicators.emaFast.toFixed(
+        `✓ Tendencia bajista (EMA20: ${indicators.emaFast.toFixed(
           2
         )} < EMA50: ${indicators.emaSlow.toFixed(2)})`
       );
     } else {
       failures.push(
-        `✗ No downtrend (EMA20: ${indicators.emaFast.toFixed(
+        `✗ Sin tendencia bajista (EMA20: ${indicators.emaFast.toFixed(
           2
         )} > EMA50: ${indicators.emaSlow.toFixed(2)})`
       );
@@ -156,36 +156,36 @@ class Strategy {
 
     // 2. Breakdown check
     if (indicators.bearishBreakdown) {
-      reasons.push("✓ Bearish breakdown detected");
+      reasons.push("✓ Ruptura bajista detectada");
     } else {
-      failures.push("✗ No bearish breakdown");
+      failures.push("✗ Sin ruptura bajista");
     }
 
     // 3. MACD bearish cross
     if (indicators.macd.bearishCross) {
       reasons.push(
-        `✓ MACD bearish cross (MACD: ${indicators.macd.macd.toFixed(
+        `✓ Cruce bajista MACD (MACD: ${indicators.macd.macd.toFixed(
           4
-        )} < Signal: ${indicators.macd.signal.toFixed(4)})`
+        )} < Señal: ${indicators.macd.signal.toFixed(4)})`
       );
     } else {
       failures.push(
-        `✗ No MACD bearish cross (MACD: ${indicators.macd.macd?.toFixed(
+        `✗ Sin cruce bajista MACD (MACD: ${indicators.macd.macd?.toFixed(
           4
-        )} vs Signal: ${indicators.macd.signal?.toFixed(4)})`
+        )} vs Señal: ${indicators.macd.signal?.toFixed(4)})`
       );
     }
 
     // 4. RSI not oversold
     if (indicators.rsi > config.indicators.rsi.oversold) {
       reasons.push(
-        `✓ RSI not oversold (${indicators.rsi.toFixed(2)} > ${
+        `✓ RSI no sobrevendido (${indicators.rsi.toFixed(2)} > ${
           config.indicators.rsi.oversold
         })`
       );
     } else {
       failures.push(
-        `✗ RSI oversold (${indicators.rsi.toFixed(2)} <= ${
+        `✗ RSI sobrevendido (${indicators.rsi.toFixed(2)} <= ${
           config.indicators.rsi.oversold
         })`
       );
@@ -193,9 +193,9 @@ class Strategy {
 
     // 5. Volume confirmation
     if (indicators.volumeSpike) {
-      reasons.push("✓ Volume spike confirmed");
+      reasons.push("✓ Pico de volumen confirmado");
     } else {
-      failures.push("✗ No volume spike");
+      failures.push("✗ Sin pico de volumen");
     }
 
     // All conditions must be met
@@ -264,14 +264,14 @@ class Strategy {
     if (position.side === "LONG" && indicators.macd.bearishCross) {
       return {
         exit: true,
-        reason: "MACD bearish cross while in LONG position",
+        reason: "Cruce bajista MACD mientras está en posición LONG",
       };
     }
 
     if (position.side === "SHORT" && indicators.macd.bullishCross) {
       return {
         exit: true,
-        reason: "MACD bullish cross while in SHORT position",
+        reason: "Cruce alcista MACD mientras está en posición SHORT",
       };
     }
 

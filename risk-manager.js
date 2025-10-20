@@ -17,7 +17,9 @@ class RiskManager {
     if (today !== this.lastResetDate) {
       this.tradesExecutedToday = 0;
       this.lastResetDate = today;
-      console.log("📅 New trading day - trade counter reset");
+      console.log(
+        "📅 Nuevo día de trading - contador de operaciones reiniciado"
+      );
     }
   }
 
@@ -35,7 +37,7 @@ class RiskManager {
   recordTrade() {
     this.tradesExecutedToday++;
     console.log(
-      `📊 Trades today: ${this.tradesExecutedToday}/${this.config.risk.maxTradesPerDay}`
+      `📊 Operaciones hoy: ${this.tradesExecutedToday}/${this.config.risk.maxTradesPerDay}`
     );
   }
 
@@ -55,7 +57,7 @@ class RiskManager {
 
     if (stopDistance === 0) {
       console.error(
-        "⚠️  Stop distance is zero - cannot calculate position size"
+        "⚠️ La distancia de stop es cero - no se puede calcular el tamaño de posición"
       );
       return 0;
     }
@@ -65,18 +67,20 @@ class RiskManager {
     // Apply min/max limits
     if (positionSize < this.config.risk.minPositionSize) {
       console.log(
-        `⚠️  Position size ${positionSize.toFixed(6)} below minimum, using ${
-          this.config.risk.minPositionSize
-        }`
+        `⚠️ Tamaño de posición ${positionSize.toFixed(
+          6
+        )} por debajo del mínimo, usando ${this.config.risk.minPositionSize}`
       );
       positionSize = this.config.risk.minPositionSize;
     }
 
     if (positionSize > this.config.risk.maxPositionSize) {
       console.log(
-        `⚠️  Position size ${positionSize.toFixed(
+        `⚠️ Tamaño de posición ${positionSize.toFixed(
           6
-        )} above maximum, capping at ${this.config.risk.maxPositionSize}`
+        )} por encima del máximo, limitando a ${
+          this.config.risk.maxPositionSize
+        }`
       );
       positionSize = this.config.risk.maxPositionSize;
     }
@@ -92,19 +96,19 @@ class RiskManager {
     const potentialLoss = stopDistance * positionSize;
     const riskPercentage = (potentialLoss / accountBalance) * 100;
 
-    console.log("\n💰 Risk Analysis:");
-    console.log(`   Account Balance: $${accountBalance.toFixed(2)}`);
-    console.log(`   Entry Price: $${entryPrice.toFixed(2)}`);
+    console.log("💰 Análisis de Riesgo:");
+    console.log(`   Saldo de Cuenta: $${accountBalance.toFixed(2)}`);
+    console.log(`   Precio de Entrada: $${entryPrice.toFixed(2)}`);
     console.log(`   Stop Loss: $${stopLoss.toFixed(2)}`);
     console.log(
-      `   Stop Distance: $${stopDistance.toFixed(2)} (${(
+      `   Distancia de Stop: $${stopDistance.toFixed(2)} (${(
         (stopDistance / entryPrice) *
         100
       ).toFixed(2)}%)`
     );
-    console.log(`   Position Size: ${positionSize.toFixed(6)}`);
+    console.log(`   Tamaño de Posición: ${positionSize.toFixed(6)}`);
     console.log(
-      `   Max Risk: $${potentialLoss.toFixed(2)} (${riskPercentage.toFixed(
+      `   Riesgo Máximo: $${potentialLoss.toFixed(2)} (${riskPercentage.toFixed(
         2
       )}%)`
     );
@@ -112,7 +116,7 @@ class RiskManager {
     // Check if risk is within acceptable range
     if (riskPercentage > this.config.risk.riskPercentage * 1.5) {
       console.log(
-        `⚠️  Risk too high: ${riskPercentage.toFixed(2)}% > ${(
+        `⚠️ Riesgo demasiado alto: ${riskPercentage.toFixed(2)}% > ${(
           this.config.risk.riskPercentage * 1.5
         ).toFixed(2)}%`
       );
@@ -139,16 +143,16 @@ class RiskManager {
     const required = requiredMargin * safetyBuffer;
 
     console.log(
-      `   Required Margin: $${required.toFixed(2)} (with ${(
+      `   Margen Requerido: $${required.toFixed(2)} (con ${(
         (safetyBuffer - 1) *
         100
-      ).toFixed(0)}% buffer)`
+      ).toFixed(0)}% de margen)`
     );
-    console.log(`   Available Balance: $${accountBalance.toFixed(2)}`);
+    console.log(`   Saldo Disponible: $${accountBalance.toFixed(2)}`);
 
     if (accountBalance < required) {
       console.log(
-        `⚠️  Insufficient balance: $${accountBalance.toFixed(
+        `⚠️ Saldo insuficiente: $${accountBalance.toFixed(
           2
         )} < $${required.toFixed(2)}`
       );

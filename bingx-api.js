@@ -60,7 +60,9 @@ class BingXAPI {
       const response = await axios(config);
       return response.data;
     } catch (error) {
-      console.error(`API Error: ${error.response?.data?.msg || error.message}`);
+      console.error(
+        `Error de API: ${error.response?.data?.msg || error.message}`
+      );
       throw error;
     }
   }
@@ -94,7 +96,7 @@ class BingXAPI {
       }
       return [];
     } catch (error) {
-      console.error("Error fetching klines:", error.message);
+      console.error("Error al obtener velas:", error.message);
       return [];
     }
   }
@@ -119,7 +121,7 @@ class BingXAPI {
       }
       return { asset: "USDT", balance: 0, availableMargin: 0 };
     } catch (error) {
-      console.error("Error fetching balance:", error.message);
+      console.error("Error al obtener saldo:", error.message);
       return { asset: "USDT", balance: 0, availableMargin: 0 };
     }
   }
@@ -148,7 +150,7 @@ class BingXAPI {
       }
       return [];
     } catch (error) {
-      console.error("Error fetching positions:", error.message);
+      console.error("Error al obtener posiciones:", error.message);
       return [];
     }
   }
@@ -184,7 +186,7 @@ class BingXAPI {
       const response = await this.request("POST", endpoint, params);
 
       if (this.testMode) {
-        console.log("✓ TEST ORDER VALIDATED");
+        console.log("✓ ORDEN DE PRUEBA VALIDADA");
         return {
           success: true,
           test: true,
@@ -207,7 +209,7 @@ class BingXAPI {
 
       return { success: false, error: response.msg };
     } catch (error) {
-      console.error("Error placing order:", error.message);
+      console.error("Error al colocar orden:", error.message);
       return { success: false, error: error.message };
     }
   }
@@ -239,7 +241,7 @@ class BingXAPI {
       );
       return response.code === 0;
     } catch (error) {
-      console.error("Error setting leverage:", error.message);
+      console.error("Error al configurar apalancamiento:", error.message);
       return false;
     }
   }

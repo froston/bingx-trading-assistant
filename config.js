@@ -56,7 +56,7 @@ module.exports = {
 
   // === BOT BEHAVIOR ===
   bot: {
-    checkInterval: 120000, // Check every 30 seconds (30000ms)
+    checkInterval: 120000, // Interval in milliseconds
     testMode: true, // Run in test mode
     logTrades: true, // Log all trading decisions
     logFile: "trades.log", // Log file name

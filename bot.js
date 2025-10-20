@@ -35,14 +35,14 @@ class TradingBot {
    * Start the trading bot
    */
   async start() {
-    this.log("🚀 Starting BingX Trading Bot...");
-    this.log(`📊 Symbol: ${config.symbol}`);
-    this.log(`⏱️ Interval: ${config.interval}`);
+    this.log("🚀 Iniciando Bot de Trading BingX...");
+    this.log(`📊 Símbolo: ${config.symbol}`);
+    this.log(`⏱️ Intervalo: ${config.interval}`);
     this.log(
       `${
         config.bot.testMode
-          ? "🧪 TEST MODE - No real orders will be placed"
-          : "⚠️ LIVE MODE - Real orders will be placed"
+          ? "🧪 MODO PRUEBA - No se colocarán órdenes reales"
+          : "⚠️ MODO EN VIVO - Se colocarán órdenes reales"
       }`
     );
 
@@ -57,7 +57,7 @@ class TradingBot {
    * Stop the trading bot
    */
   stop() {
-    this.log("🛑 Stopping trading bot...");
+    this.log("🛑 Deteniendo bot de trading...");
     this.isRunning = false;
   }
 
@@ -69,7 +69,7 @@ class TradingBot {
       try {
         await this.tick();
       } catch (error) {
-        this.log(`❌ Error in main loop: ${error.message}`);
+        this.log(`❌ Error en el bucle principal: ${error.message}`);
         console.error(error);
       }
 
@@ -83,17 +83,17 @@ class TradingBot {
    */
   async tick() {
     this.log("\n" + "=".repeat(80));
-    this.log("🔄 Checking market conditions...");
+    this.log("🔄 Verificando condiciones del mercado...");
 
     // Check if within trading hours
     if (!Strategy.isWithinTradingHours(config)) {
-      this.log("⏰ Outside trading hours - skipping analysis");
+      this.log("⏰ Fuera del horario de trading - omitiendo análisis");
       return;
     }
 
     // Check daily trade limit
     if (!this.riskManager.canTradeToday()) {
-      this.log("📊 Maximum trades per day reached - skipping");
+      this.log("📊 Máximo de operaciones por día alcanzado - omitiendo");
       return;
     }
 
@@ -105,13 +105,13 @@ class TradingBot {
     );
 
     if (!candles || candles.length < config.indicators.emaSlow + 10) {
-      this.log("⚠️ Insufficient candle data");
+      this.log("⚠️ Datos de velas insuficientes");
       return;
     }
 
-    this.log(`📈 Fetched ${candles.length} candles`);
+    this.log(`📈 Obtenidas ${candles.length} velas`);
     this.log(
-      `🪙 Current Price [${config.symbol}]: $${candles[
+      `🪙 Precio Actual [${config.symbol}]: $${candles[
         candles.length - 1
       ].close.toFixed(2)}`
     );
@@ -128,7 +128,7 @@ class TradingBot {
 
     if (this.currentPosition && this.currentPosition.size !== 0) {
       this.log(
-        `\n📍 Current Position: ${this.currentPosition.side} ${this.currentPosition.size} @ $${this.currentPosition.entryPrice}`
+        `\n📍 Posición Actual: ${this.currentPosition.side} ${this.currentPosition.size} @ $${this.currentPosition.entryPrice}`
       );
 
       // Check if we should exit based on indicators
@@ -137,7 +137,7 @@ class TradingBot {
         analysis.indicators
       );
       if (exitSignal.exit) {
-        this.log(`🚪 Exit signal detected: ${exitSignal.reason}`);
+        this.log(`🚪 Señal de salida detectada: ${exitSignal.reason}`);
         await this.closePosition();
         return;
       }
@@ -150,18 +150,18 @@ class TradingBot {
             : analysis.longSignal.signal;
 
         if (oppositeSignal) {
-          this.log("🔄 Opposite signal detected - closing current position");
+          this.log("🔄 Señal opuesta detectada - cerrando posición actual");
           await this.closePosition();
           return;
         }
       }
 
-      this.log("✓ Holding current position");
+      this.log("✓ Manteniendo posición actual");
     } else {
       // No position - check for entry signals
       if (config.position.oneTradeAtATime && this.currentPosition) {
         this.log(
-          "⏳ One trade at a time mode - waiting for current position to close"
+          "⏳ Modo una operación a la vez - esperando cierre de posición actual"
         );
         return;
       }
@@ -174,14 +174,14 @@ class TradingBot {
    * Display current indicator values
    */
   displayIndicators(indicators) {
-    this.log("📊 Technical Indicators:");
-    this.log(`   EMA20: ${indicators.emaFast?.toFixed(2) || "N/A"}`);
-    this.log(`   EMA50: ${indicators.emaSlow?.toFixed(2) || "N/A"}`);
-    this.log(`   MACD: ${indicators.macd?.macd?.toFixed(4) || "N/A"}`);
-    this.log(`   Signal: ${indicators.macd?.signal?.toFixed(4) || "N/A"}`);
-    this.log(`   RSI: ${indicators.rsi?.toFixed(2) || "N/A"}`);
-    this.log(`   ATR: ${indicators.atr?.toFixed(2) || "N/A"}`);
-    this.log(`   Volume Spike: ${indicators.volumeSpike ? "YES" : "NO"}`);
+    this.log("📊 Indicadores Técnicos:");
+    this.log(`   EMA20: ${indicators.emaFast?.toFixed(2) || "N/D"}`);
+    this.log(`   EMA50: ${indicators.emaSlow?.toFixed(2) || "N/D"}`);
+    this.log(`   MACD: ${indicators.macd?.macd?.toFixed(4) || "N/D"}`);
+    this.log(`   Señal: ${indicators.macd?.signal?.toFixed(4) || "N/D"}`);
+    this.log(`   RSI: ${indicators.rsi?.toFixed(2) || "N/D"}`);
+    this.log(`   ATR: ${indicators.atr?.toFixed(2) || "N/D"}`);
+    this.log(`   Pico de Volumen: ${indicators.volumeSpike ? "SÍ" : "NO"}`);
   }
 
   /**
@@ -190,15 +190,15 @@ class TradingBot {
   async checkEntrySignals(analysis) {
     const { longSignal, shortSignal, indicators } = analysis;
 
-    this.log("🎯 Signal Analysis:");
+    this.log("🎯 Análisis de Señales:");
 
     // Check LONG signal
     if (longSignal.signal) {
-      this.log("🟢 LONG ENTRY SIGNAL DETECTED!");
+      this.log("🟢 ¡SEÑAL DE ENTRADA LONG DETECTADA!");
       longSignal.reasons.forEach((reason) => this.log(`   ${reason}`));
       await this.enterPosition("LONG", indicators);
     } else if (longSignal.reasons.length > 0) {
-      this.log("⚪ No LONG signal:");
+      this.log("⚪ Sin señal LONG:");
       longSignal.reasons
         .slice(0, 2)
         .forEach((reason) => this.log(`   ${reason}`));
@@ -206,11 +206,11 @@ class TradingBot {
 
     // Check SHORT signal
     if (shortSignal.signal) {
-      this.log("🔴 SHORT ENTRY SIGNAL DETECTED!");
+      this.log("🔴 ¡SEÑAL DE ENTRADA SHORT DETECTADA!");
       shortSignal.reasons.forEach((reason) => this.log(`   ${reason}`));
       await this.enterPosition("SHORT", indicators);
     } else if (shortSignal.reasons.length > 0) {
-      this.log("⚪ No SHORT signal:");
+      this.log("⚪ Sin señal SHORT:");
       shortSignal.reasons
         .slice(0, 2)
         .forEach((reason) => this.log(`   ${reason}`));
@@ -226,10 +226,10 @@ class TradingBot {
       const balance = await this.api.getBalance();
       const accountBalance = balance.availableMargin;
 
-      this.log(`\n💼 Account Balance: $${accountBalance.toFixed(2)}`);
+      this.log(`\n💼 Saldo de Cuenta: $${accountBalance.toFixed(2)}`);
 
       if (accountBalance < 10) {
-        this.log("⚠️ Insufficient balance to trade");
+        this.log("⚠️ Saldo insuficiente para operar");
         return;
       }
 
@@ -273,7 +273,7 @@ class TradingBot {
           formattedSize
         )
       ) {
-        this.log("⚠️ Trade rejected by risk management");
+        this.log("⚠️ Operación rechazada por gestión de riesgo");
         return;
       }
 
@@ -298,15 +298,17 @@ class TradingBot {
         accountBalance
       );
 
-      this.log("🎯 TRADE SETUP:");
-      this.log(`   Type: ${summary.type}`);
-      this.log(`   Entry: $${summary.entryPrice}`);
+      this.log("🎯 CONFIGURACIÓN DE OPERACIÓN:");
+      this.log(`   Tipo: ${summary.type}`);
+      this.log(`   Entrada: $${summary.entryPrice}`);
       this.log(`   Stop Loss: $${summary.stopLoss}`);
       this.log(`   Take Profit: $${summary.takeProfit}`);
-      this.log(`   Position Size: ${summary.positionSize}`);
-      this.log(`   Risk: $${summary.riskAmount} (${summary.riskPercentage}%)`);
-      this.log(`   Reward: $${summary.rewardAmount}`);
-      this.log(`   R:R Ratio: 1:${summary.riskRewardRatio}`);
+      this.log(`   Tamaño de Posición: ${summary.positionSize}`);
+      this.log(
+        `   Riesgo: $${summary.riskAmount} (${summary.riskPercentage}%)`
+      );
+      this.log(`   Recompensa: $${summary.rewardAmount}`);
+      this.log(`   Ratio R:R: 1:${summary.riskRewardRatio}`);
 
       // Place order
       const side = type === "LONG" ? "BUY" : "SELL";
@@ -319,9 +321,9 @@ class TradingBot {
       );
 
       if (order.success) {
-        this.log(`✅ ${type} ORDER PLACED SUCCESSFULLY!`);
-        this.log(`   Order ID: ${order.orderId}`);
-        this.log(`   ${config.bot.testMode ? "(Test Order)" : ""}`);
+        this.log(`✅ ¡ORDEN ${type} COLOCADA EXITOSAMENTE!`);
+        this.log(`   ID de Orden: ${order.orderId}`);
+        this.log(`   ${config.bot.testMode ? "(Orden de Prueba)" : ""}`);
 
         this.riskManager.recordTrade();
 
@@ -333,10 +335,10 @@ class TradingBot {
           testMode: config.bot.testMode,
         });
       } else {
-        this.log(`❌ Order failed: ${order.error}`);
+        this.log(`❌ Orden fallida: ${order.error}`);
       }
     } catch (error) {
-      this.log(`❌ Error entering position: ${error.message}`);
+      this.log(`❌ Error al entrar en posición: ${error.message}`);
       console.error(error);
     }
   }
@@ -346,12 +348,12 @@ class TradingBot {
    */
   async closePosition() {
     if (!this.currentPosition || this.currentPosition.size === 0) {
-      this.log("⚠️ No position to close");
+      this.log("⚠️ No hay posición para cerrar");
       return;
     }
 
     try {
-      this.log(`\n🚪 Closing ${this.currentPosition.side} position...`);
+      this.log(`\n🚪 Cerrando posición ${this.currentPosition.side}...`);
 
       const result = await this.api.closePosition(
         config.symbol,
@@ -360,10 +362,10 @@ class TradingBot {
       );
 
       if (result.success) {
-        this.log(`✅ Position closed successfully!`);
+        this.log(`✅ ¡Posición cerrada exitosamente!`);
         this.log(
           `   P&L: $${
-            this.currentPosition.unrealizedProfit?.toFixed(2) || "N/A"
+            this.currentPosition.unrealizedProfit?.toFixed(2) || "N/D"
           }`
         );
 
@@ -379,10 +381,10 @@ class TradingBot {
 
         this.currentPosition = null;
       } else {
-        this.log(`❌ Failed to close position: ${result.error}`);
+        this.log(`❌ Error al cerrar posición: ${result.error}`);
       }
     } catch (error) {
-      this.log(`❌ Error closing position: ${error.message}`);
+      this.log(`❌ Error al cerrar posición: ${error.message}`);
       console.error(error);
     }
   }
@@ -408,19 +410,19 @@ const bot = new TradingBot();
 
 // Handle graceful shutdown
 process.on("SIGINT", () => {
-  bot.log("\n👋 Received shutdown signal");
+  bot.log("\n👋 Señal de apagado recibida");
   bot.stop();
   process.exit(0);
 });
 
 process.on("SIGTERM", () => {
-  bot.log("\n👋 Received termination signal");
+  bot.log("\n👋 Señal de terminación recibida");
   bot.stop();
   process.exit(0);
 });
 
 // Start the bot
 bot.start().catch((error) => {
-  console.error("Fatal error:", error);
+  console.error("Error fatal:", error);
   process.exit(1);
 });
