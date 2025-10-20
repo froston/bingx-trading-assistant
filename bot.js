@@ -3,6 +3,7 @@ const Strategy = require("./strategy");
 const RiskManager = require("./risk-manager");
 const config = require("./config");
 const fs = require("fs");
+const notifier = require("node-notifier");
 
 /**
  * Main Trading Bot
@@ -21,7 +22,7 @@ class TradingBot {
    * Log message to console and optionally to file
    */
   log(message, writeToFile = true) {
-    const timestamp = new Date().toISOString();
+    const timestamp = new Date().toLocaleString();
     const logMessage = `[${timestamp}] ${message}`;
 
     console.log(logMessage);
@@ -29,6 +30,10 @@ class TradingBot {
     if (writeToFile && config.bot.logTrades) {
       fs.appendFileSync(config.bot.logFile, logMessage + "\n");
     }
+  }
+
+  notify(params) {
+    notifier.notify({ sound: true, wait: false, ...params });
   }
 
   /**
@@ -196,24 +201,37 @@ class TradingBot {
     if (longSignal.signal) {
       this.log("🟢 ¡SEÑAL DE ENTRADA LONG DETECTADA!");
       longSignal.reasons.forEach((reason) => this.log(`   ${reason}`));
+
+      // Send notification for LONG signal
+      this.notify({
+        title: "🟢 LONG Signal Detected",
+        message: `${config.symbol}\nPrice: $${indicators.currentPrice.toFixed(
+          2
+        )}\nRSI: ${indicators.rsi.toFixed(2)}`,
+      });
+
       await this.enterPosition("LONG", indicators);
     } else if (longSignal.reasons.length > 0) {
       this.log("⚪ Sin señal LONG:");
-      longSignal.reasons
-        .slice(0, 2)
-        .forEach((reason) => this.log(`   ${reason}`));
+      longSignal.reasons.forEach((reason) => this.log(`   ${reason}`));
     }
 
     // Check SHORT signal
     if (shortSignal.signal) {
       this.log("🔴 ¡SEÑAL DE ENTRADA SHORT DETECTADA!");
       shortSignal.reasons.forEach((reason) => this.log(`   ${reason}`));
+
+      this.notify({
+        title: "🔴 SHORT Signal Detected",
+        message: `${config.symbol}\nPrice: $${indicators.currentPrice.toFixed(
+          2
+        )}\nRSI: ${indicators.rsi.toFixed(2)}`,
+      });
+
       await this.enterPosition("SHORT", indicators);
     } else if (shortSignal.reasons.length > 0) {
       this.log("⚪ Sin señal SHORT:");
-      shortSignal.reasons
-        .slice(0, 2)
-        .forEach((reason) => this.log(`   ${reason}`));
+      shortSignal.reasons.forEach((reason) => this.log(`   ${reason}`));
     }
   }
 
@@ -325,6 +343,15 @@ class TradingBot {
         this.log(`   ID de Orden: ${order.orderId}`);
         this.log(`   ${config.bot.testMode ? "(Orden de Prueba)" : ""}`);
 
+        this.notify({
+          title: `🎯 ${type} Trade Opened`,
+          message: `${config.symbol}\nEntry: $${summary.entryPrice}\nSize: ${
+            summary.positionSize
+          }\nR:R 1:${summary.riskRewardRatio}${
+            config.bot.testMode ? " (Test Mode)" : ""
+          }`,
+        });
+
         this.riskManager.recordTrade();
 
         // Log trade to file
@@ -376,7 +403,7 @@ class TradingBot {
           pnl: this.currentPosition.unrealizedProfit,
           orderId: result.orderId,
           testMode: config.bot.testMode,
-          timestamp: new Date().toISOString(),
+          timestamp: new Date().toLocaleString(),
         });
 
         this.currentPosition = null;

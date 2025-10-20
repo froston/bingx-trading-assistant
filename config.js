@@ -8,7 +8,7 @@ module.exports = {
   symbol: process.env.SYMBOL || "BTC-USDT", // Default to BTC if not specified
 
   // === TIMEFRAME ===
-  interval: "5m", // 5-minute candles
+  interval: "15m", // 5-minute candles
   candleLimit: 100, // Number of historical candles to fetch
 
   // === INDICATOR PARAMETERS ===

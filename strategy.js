@@ -103,13 +103,13 @@ class Strategy {
       failures.push("✗ Sin pico de volumen");
     }
 
-    // All conditions must be met
-    const allConditionsMet = failures.length === 0;
+    // Minimum 3 conditions must be met
+    const allConditionsMet = reasons.length >= 3;
 
     return {
       signal: allConditionsMet,
       type: "LONG",
-      reasons: allConditionsMet ? reasons : failures,
+      reasons: [...reasons, ...failures],
       indicators,
     };
   }
@@ -198,13 +198,13 @@ class Strategy {
       failures.push("✗ Sin pico de volumen");
     }
 
-    // All conditions must be met
-    const allConditionsMet = failures.length === 0;
+    // Minimum 3 conditions must be met
+    const allConditionsMet = reasons.length >= 3;
 
     return {
       signal: allConditionsMet,
       type: "SHORT",
-      reasons: allConditionsMet ? reasons : failures,
+      reasons: [...reasons, ...failures],
       indicators,
     };
   }
