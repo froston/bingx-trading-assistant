@@ -11,8 +11,13 @@ class BingXAPI {
   constructor() {
     this.apiKey = process.env.BINGX_API_KEY;
     this.apiSecret = process.env.BINGX_API_SECRET;
-    this.baseURL = "https://open-api.bingx.com";
     this.testMode = config.bot.testMode;
+
+    if (config.bot.testMode) {
+      this.baseURL = "https://open-api-vst.bingx.com";
+    } else {
+      this.baseURL = "https://open-api.bingx.com";
+    }
   }
 
   /**
@@ -146,7 +151,7 @@ class BingXAPI {
           symbol: pos.symbol,
           side: pos.positionSide,
           size: parseFloat(pos.positionAmt),
-          entryPrice: parseFloat(pos.entryPrice),
+          entryPrice: parseFloat(pos.avgPrice),
           unrealizedProfit: parseFloat(pos.unrealizedProfit),
           leverage: parseFloat(pos.leverage),
         }));
@@ -163,9 +168,7 @@ class BingXAPI {
    */
   async placeOrder(symbol, side, quantity, stopLoss = null, takeProfit = null) {
     try {
-      const endpoint = this.testMode
-        ? "/openApi/swap/v2/trade/order/test"
-        : "/openApi/swap/v2/trade/order";
+      const endpoint = "/openApi/swap/v2/trade/order";
 
       const params = {
         symbol,
@@ -173,19 +176,27 @@ class BingXAPI {
         positionSide: side.toUpperCase() === "BUY" ? "LONG" : "SHORT",
         type: "MARKET",
         quantity,
-        takeProfit: JSON.stringify({
-          type: "TAKE_PROFIT_MARKET",
-          stopPrice: takeProfit.toString(),
-          price: takeProfit.toString(),
-          workingType: "MARK_PRICE",
-        }),
-        stopLoss: JSON.stringify({
-          type: "STOP_MARKET",
-          stopPrice: stopLoss.toString(),
-          price: stopLoss.toString(),
-          workingType: "MARK_PRICE",
-        }),
       };
+
+      if (!this.testMode) {
+        if (takeProfit) {
+          params.takeProfit = JSON.stringify({
+            type: "TAKE_PROFIT_MARKET",
+            stopPrice: parseFloat(takeProfit),
+            price: parseFloat(takeProfit),
+            workingType: "MARK_PRICE",
+          });
+        }
+
+        if (stopLoss) {
+          params.stopLoss = JSON.stringify({
+            type: "STOP_MARKET",
+            stopPrice: parseFloat(stopLoss),
+            price: parseFloat(stopLoss),
+            workingType: "MARK_PRICE",
+          });
+        }
+      }
 
       const response = await this.request("POST", endpoint, params);
 

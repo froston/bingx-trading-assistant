@@ -262,10 +262,11 @@ class TradingBot {
       );
 
       // Format position size
-      const formattedSize = this.riskManager.formatPositionSize(
+      /* const formattedSize = this.riskManager.formatPositionSize(
         positionSize,
         config.symbol
-      );
+      ); */
+      const formattedSize = positionSize;
 
       // Validate trade
       if (

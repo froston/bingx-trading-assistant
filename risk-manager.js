@@ -123,6 +123,11 @@ class RiskManager {
       return false;
     }
 
+    if (positionSize <= 0) {
+      console.log("⚠️ Tamaño de posición inválido: debe ser mayor que 0");
+      return false;
+    }
+
     return true;
   }
 

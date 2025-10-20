@@ -43,8 +43,8 @@ module.exports = {
     takeProfitMultiplier: 2, // TP = 2× Stop Loss (1.5-2x recommended)
     stopLossATRMultiplier: 1, // Stop loss = 1× ATR
     maxTradesPerDay: 3, // Maximum trades per day (3-5 recommended)
-    minPositionSize: 0.000005, // Minimum position size BTC
-    maxPositionSize: 0.00002, // Maximum position size BTC
+    minPositionSize: 0.0001, // Minimum position size BTC
+    maxPositionSize: 0.0002, // Maximum position size BTC
   },
 
   // === TRADING HOURS ===
