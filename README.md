@@ -128,10 +128,14 @@ indicators: {
 
 ### Change Trading Pair
 
+The trading pair is now configurable via environment variable or defaults to BTC:
+
 ```javascript
-symbol: 'BTC-USDT',           // Change to ETH-USDT, etc.
+symbol: process.env.SYMBOL || 'BTC-USDT',  // Default to BTC if not specified
 interval: '5m',               // Change to 1m, 15m, 1h, etc.
 ```
+
+Use the npm scripts for quick switching between coins (see Quick Start section).
 
 ### Trading Hours
 
@@ -170,10 +174,32 @@ npm run test
 
 This validates orders without executing real trades.
 
-### 4. Live Trading
+### 4. Run with Specific Cryptocurrency
+
+The bot supports quick scripts for different cryptocurrencies:
+
+**Test Mode (No real orders):**
 
 ```bash
-npm start
+npm run btc      # Bitcoin (default)
+npm run eth      # Ethereum
+npm run bnb      # Binance Coin
+npm run sol      # Solana
+```
+
+**Live Trading:**
+
+```bash
+npm run btc:live  # Bitcoin live
+npm run eth:live  # Ethereum live
+npm run bnb:live  # Binance Coin live
+npm run sol:live  # Solana live
+```
+
+### 5. Default Live Trading
+
+```bash
+npm start         # Runs BTC in test mode by default
 ```
 
 ---

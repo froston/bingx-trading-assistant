@@ -4,14 +4,19 @@
   "description": "Automated crypto day trading bot for BingX using EMA, MACD, RSI strategy",
   "main": "bot.js",
   "scripts": {
-    "start": "node bot.js --test",
-    "test": "node bot.js --test"
+    "start": "node bot.js",
+    "btc": "cross-env SYMBOL=BTC-USDT node bot.js",
+    "eth": "cross-env SYMBOL=ETH-USDT node bot.js",
+    "sol": "cross-env SYMBOL=SOL-USDT node bot.js"
   },
   "license": "MIT",
   "dependencies": {
     "axios": "^1.6.2",
+    "crypto": "^1.0.1",
     "dotenv": "^16.3.1",
-    "technicalindicators": "^3.1.0",
-    "crypto": "^1.0.1"
+    "technicalindicators": "^3.1.0"
+  },
+  "devDependencies": {
+    "cross-env": "^10.1.0"
   }
 }

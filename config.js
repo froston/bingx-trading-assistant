@@ -5,7 +5,7 @@
 
 module.exports = {
   // === TRADING PAIR ===
-  symbol: "BTC-USDT",
+  symbol: process.env.SYMBOL || "BTC-USDT", // Default to BTC if not specified
 
   // === TIMEFRAME ===
   interval: "5m", // 5-minute candles
@@ -57,7 +57,7 @@ module.exports = {
   // === BOT BEHAVIOR ===
   bot: {
     checkInterval: 30000, // Check every 30 seconds (30000ms)
-    testMode: process.argv.includes("--test"), // Run in test mode
+    testMode: process.env.TEST_MODE === "true", // Run in test mode
     logTrades: true, // Log all trading decisions
     logFile: "trades.log", // Log file name
   },

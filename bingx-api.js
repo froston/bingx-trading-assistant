@@ -1,5 +1,6 @@
 const axios = require("axios");
 const crypto = require("crypto");
+const config = require("./config");
 require("dotenv").config();
 
 /**
@@ -11,7 +12,7 @@ class BingXAPI {
     this.apiKey = process.env.BINGX_API_KEY;
     this.apiSecret = process.env.BINGX_API_SECRET;
     this.baseURL = "https://open-api.bingx.com";
-    this.testMode = process.argv.includes("--test");
+    this.testMode = config.bot.testMode;
   }
 
   /**
