@@ -111,7 +111,9 @@ class TradingBot {
 
     this.log(`📈 Fetched ${candles.length} candles`);
     this.log(
-      `   Current Price: $${candles[candles.length - 1].close.toFixed(2)}`
+      `   Current Price [${config.symbol}]: $${candles[
+        candles.length - 1
+      ].close.toFixed(2)}`
     );
 
     // Analyze market

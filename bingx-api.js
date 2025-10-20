@@ -106,13 +106,11 @@ class BingXAPI {
     try {
       const response = await this.request(
         "GET",
-        "/openApi/swap/v2/user/balance"
+        "/openApi/swap/v3/user/balance"
       );
 
       if (response.code === 0 && response.data) {
-        const usdtBalance = response.data.balance.find(
-          (b) => b.asset === "USDT"
-        );
+        const usdtBalance = response.data.find((b) => b.asset === "USDT");
         return {
           asset: "USDT",
           balance: parseFloat(usdtBalance?.balance || 0),
