@@ -110,9 +110,6 @@ class BingXAPI {
    * Get account balance
    */
   async getBalance() {
-    if (this.testMode) {
-      return { asset: "USDT", balance: 100, availableMargin: 100 };
-    }
     try {
       const response = await this.request(
         "GET",
@@ -120,7 +117,9 @@ class BingXAPI {
       );
 
       if (response.code === 0 && response.data) {
-        const usdtBalance = response.data.find((b) => b.asset === "USDT");
+        const usdtBalance = response.data.find((b) =>
+          b.asset === this.testMode ? "VST" : "USDT"
+        );
         return {
           asset: "USDT",
           balance: parseFloat(usdtBalance?.balance || 0),
