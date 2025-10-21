@@ -1,5 +1,5 @@
 const BingXAPI = require("./bingx-api");
-const Strategy = require("./strategy");
+const TrendBreakoutStrategy = require("./strategies/trend-breakout");
 const RiskManager = require("./risk-manager");
 const config = require("./config");
 const fs = require("fs");
@@ -13,6 +13,7 @@ class TradingBot {
   constructor() {
     this.api = new BingXAPI();
     this.riskManager = new RiskManager(config);
+    this.strategy = new TrendBreakoutStrategy();
     this.isRunning = false;
     this.currentPosition = null;
     this.lastAnalysis = null;
@@ -91,7 +92,7 @@ class TradingBot {
     this.log("🔄 Verificando condiciones del mercado...");
 
     // Check if within trading hours
-    if (!Strategy.isWithinTradingHours(config)) {
+    if (!this.strategy.isWithinTradingHours(config)) {
       this.log("⏰ Fuera del horario de trading - omitiendo análisis");
       return;
     }
@@ -122,7 +123,7 @@ class TradingBot {
     );
 
     // Analyze market
-    const analysis = Strategy.analyze(candles, config);
+    const analysis = this.strategy.analyze(candles, config);
     this.lastAnalysis = analysis;
 
     this.displayIndicators(analysis.indicators);
@@ -137,7 +138,7 @@ class TradingBot {
       );
 
       // Check if we should exit based on indicators
-      const exitSignal = Strategy.shouldExitOnIndicator(
+      const exitSignal = this.strategy.shouldExitOnIndicator(
         this.currentPosition,
         analysis.indicators
       );
@@ -238,7 +239,7 @@ class TradingBot {
 
       // Calculate stop loss and take profit
       const entryPrice = indicators.currentPrice;
-      const stopLoss = Strategy.calculateStopLoss(
+      const stopLoss = this.strategy.calculateStopLoss(
         type,
         entryPrice,
         indicators.atr,
@@ -247,7 +248,7 @@ class TradingBot {
         config
       );
 
-      const takeProfit = Strategy.calculateTakeProfit(
+      const takeProfit = this.strategy.calculateTakeProfit(
         type,
         entryPrice,
         stopLoss,
