@@ -90,7 +90,7 @@ class BingXAPI {
       );
 
       if (response.code === 0 && response.data) {
-        return response.data.map((candle) => ({
+        const candles = response.data.map((candle) => ({
           time: candle.time,
           open: parseFloat(candle.open),
           high: parseFloat(candle.high),
@@ -98,6 +98,10 @@ class BingXAPI {
           close: parseFloat(candle.close),
           volume: parseFloat(candle.volume),
         }));
+
+        // BingX returns candles in descending order (newest first)
+        // Reverse to get oldest first (standard for technical indicators)
+        return candles.reverse();
       }
       return [];
     } catch (error) {
@@ -147,6 +151,7 @@ class BingXAPI {
 
       if (response.code === 0 && response.data) {
         return response.data.map((pos) => ({
+          positionId: pos.positionId,
           symbol: pos.symbol,
           side: pos.positionSide,
           size: parseFloat(pos.positionAmt),
@@ -217,12 +222,31 @@ class BingXAPI {
   }
 
   /**
-   * Close position
+   * Close position by position ID
    */
-  async closePosition(symbol, side, quantity) {
-    // To close a LONG, we SELL; to close a SHORT, we BUY
-    const closeSide = side === "LONG" ? "SELL" : "BUY";
-    return await this.placeOrder(symbol, closeSide, quantity);
+  async closePosition(positionId) {
+    try {
+      const endpoint = "/openApi/swap/v2/trade/closePosition";
+
+      const params = {
+        positionId,
+      };
+
+      const response = await this.request("POST", endpoint, params);
+
+      if (response.code === 0 && response.data) {
+        return {
+          success: true,
+          orderId: response.data.order?.orderId,
+          positionId,
+        };
+      }
+
+      return { success: false, error: response.msg };
+    } catch (error) {
+      console.error("Error al cerrar posición:", error.message);
+      return { success: false, error: error.message };
+    }
   }
 
   /**

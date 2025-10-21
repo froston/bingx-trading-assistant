@@ -365,13 +365,17 @@ class TradingBot {
       return;
     }
 
+    if (!this.currentPosition.positionId) {
+      this.log("⚠️ No se encontró ID de posición");
+      return;
+    }
+
     try {
       this.log(`\n🚪 Cerrando posición ${this.currentPosition.side}...`);
+      this.log(`   Position ID: ${this.currentPosition.positionId}`);
 
       const result = await this.api.closePosition(
-        config.symbol,
-        this.currentPosition.side,
-        Math.abs(this.currentPosition.size)
+        this.currentPosition.positionId
       );
 
       if (result.success) {
@@ -388,6 +392,7 @@ class TradingBot {
           exitPrice: this.lastAnalysis?.indicators?.currentPrice,
           pnl: this.currentPosition.unrealizedProfit,
           orderId: result.orderId,
+          positionId: this.currentPosition.positionId,
           testMode: config.bot.testMode,
           timestamp: new Date().toLocaleString(),
         });
