@@ -28,7 +28,7 @@ class RiskManager {
    */
   canTradeToday() {
     this.checkAndResetDailyCounter();
-    return this.tradesExecutedToday < this.config.risk.maxTradesPerDay;
+    return this.tradesExecutedToday <= this.config.risk.maxTradesPerDay;
   }
 
   /**
@@ -64,25 +64,33 @@ class RiskManager {
 
     let positionSize = riskAmount / stopDistance;
 
-    // Apply min/max limits
-    if (positionSize < this.config.risk.minPositionSize) {
-      console.log(
-        `⚠️ Tamaño de posición ${positionSize.toFixed(
-          6
-        )} por debajo del mínimo, usando ${this.config.risk.minPositionSize}`
-      );
-      positionSize = this.config.risk.minPositionSize;
-    }
+    // Convert USDT limits to crypto amounts based on entry price
+    const minPositionSize = this.config.risk.minPositionSizeUSDT / entryPrice;
+    const maxPositionSize = this.config.risk.maxPositionSizeUSDT / entryPrice;
 
-    if (positionSize > this.config.risk.maxPositionSize) {
+    // Apply min/max limits
+    if (positionSize < minPositionSize) {
+      const positionValueUSDT = positionSize * entryPrice;
       console.log(
-        `⚠️ Tamaño de posición ${positionSize.toFixed(
-          6
-        )} por encima del máximo, limitando a ${
-          this.config.risk.maxPositionSize
+        `⚠️ Tamaño de posición $${positionValueUSDT.toFixed(
+          2
+        )} por debajo del mínimo, usando $${
+          this.config.risk.minPositionSizeUSDT
         }`
       );
-      positionSize = this.config.risk.maxPositionSize;
+      positionSize = minPositionSize;
+    }
+
+    if (positionSize > maxPositionSize) {
+      const positionValueUSDT = positionSize * entryPrice;
+      console.log(
+        `⚠️ Tamaño de posición $${positionValueUSDT.toFixed(
+          2
+        )} por encima del máximo, limitando a $${
+          this.config.risk.maxPositionSizeUSDT
+        }`
+      );
+      positionSize = maxPositionSize;
     }
 
     return positionSize;

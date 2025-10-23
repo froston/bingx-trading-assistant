@@ -34,17 +34,18 @@ module.exports = {
 
     volume: {
       period: 20, // Average volume lookback period
+      spikeMultiplier: 1.3, // Volume must be 30% above average (1.5 = 50%, 1.2 = 20%)
     },
   },
 
   // === RISK MANAGEMENT ===
   risk: {
-    riskPercentage: 1, // Risk 1% of account per trade (1-2% recommended)
+    riskPercentage: 2, // Risk 2% of account per trade (1-2% recommended)
     takeProfitMultiplier: 2, // TP = 2× Stop Loss (1.5-2x recommended)
     stopLossATRMultiplier: 1, // Stop loss = 1× ATR
     maxTradesPerDay: 3, // Maximum trades per day (3-5 recommended)
-    minPositionSize: 0.001, // Minimum position size BTC
-    maxPositionSize: 1, // Maximum position size BTC
+    minPositionSizeUSDT: 10, // Minimum position size in USDT
+    maxPositionSizeUSDT: 1000, // Maximum position size in USDT
   },
 
   // === TRADING HOURS ===

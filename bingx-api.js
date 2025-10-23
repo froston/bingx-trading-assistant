@@ -182,24 +182,22 @@ class BingXAPI {
         quantity,
       };
 
-      if (!this.testMode) {
-        if (takeProfit) {
-          params.takeProfit = JSON.stringify({
-            type: "TAKE_PROFIT_MARKET",
-            stopPrice: parseFloat(takeProfit),
-            price: parseFloat(takeProfit),
-            workingType: "MARK_PRICE",
-          });
-        }
+      if (takeProfit) {
+        params.takeProfit = JSON.stringify({
+          type: "TAKE_PROFIT_MARKET",
+          stopPrice: parseFloat(takeProfit),
+          price: parseFloat(takeProfit),
+          workingType: "MARK_PRICE",
+        });
+      }
 
-        if (stopLoss) {
-          params.stopLoss = JSON.stringify({
-            type: "STOP_MARKET",
-            stopPrice: parseFloat(stopLoss),
-            price: parseFloat(stopLoss),
-            workingType: "MARK_PRICE",
-          });
-        }
+      if (stopLoss) {
+        params.stopLoss = JSON.stringify({
+          type: "STOP_MARKET",
+          stopPrice: parseFloat(stopLoss),
+          price: parseFloat(stopLoss),
+          workingType: "MARK_PRICE",
+        });
       }
 
       const response = await this.request("POST", endpoint, params);

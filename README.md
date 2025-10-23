@@ -74,12 +74,12 @@ Uses the **more conservative** of:
 
 | Parameter             | Default         | Description                           |
 | --------------------- | --------------- | ------------------------------------- |
-| **Risk per Trade**    | 1.5%            | Maximum account risk per single trade |
+| **Risk per Trade**    | 2%              | Maximum account risk per single trade |
 | **Position Sizing**   | Auto-calculated | `(Account × Risk%) / (Entry - Stop)`  |
 | **Take Profit Ratio** | 2:1             | Risk/reward ratio                     |
-| **Max Trades/Day**    | 5               | Prevents overtrading                  |
-| **Min Position Size** | 0.001 BTC       | Minimum order size                    |
-| **Max Position Size** | 1.0 BTC         | Maximum order size                    |
+| **Max Trades/Day**    | 3               | Prevents overtrading                  |
+| **Min Position Size** | $10 USDT        | Minimum order size in USDT            |
+| **Max Position Size** | $100 USDT       | Maximum order size in USDT            |
 
 ---
 

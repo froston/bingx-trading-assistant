@@ -87,7 +87,7 @@ class TrendBreakoutStrategy extends BaseStrategy {
     const result = this.checkConditions(conditions);
 
     // Minimum 3 conditions must be met
-    const signal = result.passed >= 4;
+    const signal = result.passed >= 5;
 
     return this.createSignalResponse(
       signal,
@@ -159,7 +159,7 @@ class TrendBreakoutStrategy extends BaseStrategy {
     const result = this.checkConditions(conditions);
 
     // Minimum 3 conditions must be met
-    const signal = result.passed >= 4;
+    const signal = result.passed >= 5;
 
     return this.createSignalResponse(
       signal,

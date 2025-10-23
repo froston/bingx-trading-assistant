@@ -101,13 +101,14 @@ class Indicators {
   /**
    * Check if current volume is above average (volume spike)
    */
-  static isVolumeSpiking(candles, period = 20) {
+  static isVolumeSpiking(candles, period = 20, multiplier = 1.3) {
     if (candles.length < period + 1) return false;
 
     const currentVolume = candles[candles.length - 1].volume;
     const avgVolume = this.calculateAverageVolume(candles.slice(0, -1), period);
 
-    return currentVolume > avgVolume;
+    // Volume must be 30% above average (more realistic threshold)
+    return currentVolume > avgVolume * multiplier;
   }
 
   /**
@@ -137,29 +138,40 @@ class Indicators {
   /**
    * Check if price broke recent resistance (bullish breakout)
    */
-  static checkBullishBreakout(candles, lookback = 20) {
+  static checkBullishBreakout(candles, lookback = 10) {
     if (candles.length < lookback + 1) return false;
 
     const currentClose = candles[candles.length - 1].close;
+    const previousClose = candles[candles.length - 2].close;
     const recentHighs = candles.slice(-lookback - 1, -1).map((c) => c.high);
     const resistance = Math.max(...recentHighs);
 
-    // Price closed above recent resistance
-    return currentClose > resistance;
+    // Price closed above recent resistance OR showing strong momentum
+    const percentAboveResistance =
+      ((currentClose - resistance) / resistance) * 100;
+    return (
+      currentClose > resistance ||
+      (previousClose <= resistance && currentClose >= resistance * 0.998)
+    );
   }
 
   /**
    * Check if price broke recent support (bearish breakdown)
    */
-  static checkBearishBreakdown(candles, lookback = 20) {
+  static checkBearishBreakdown(candles, lookback = 10) {
     if (candles.length < lookback + 1) return false;
 
     const currentClose = candles[candles.length - 1].close;
+    const previousClose = candles[candles.length - 2].close;
     const recentLows = candles.slice(-lookback - 1, -1).map((c) => c.low);
     const support = Math.min(...recentLows);
 
-    // Price closed below recent support
-    return currentClose < support;
+    // Price closed below recent support OR showing strong momentum
+    const percentBelowSupport = ((support - currentClose) / support) * 100;
+    return (
+      currentClose < support ||
+      (previousClose >= support && currentClose <= support * 1.002)
+    );
   }
 
   /**
@@ -185,7 +197,8 @@ class Indicators {
       ),
       volumeSpike: this.isVolumeSpiking(
         candles,
-        config.indicators.volume.period
+        config.indicators.volume.period,
+        config.indicators.volume.spikeMultiplier || 1.3
       ),
       swingLow: this.findSwingLow(candles),
       swingHigh: this.findSwingHigh(candles),
