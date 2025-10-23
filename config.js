@@ -8,13 +8,22 @@ module.exports = {
   symbol: process.env.SYMBOL || "BTC-USDT", // Default to BTC if not specified
 
   // === TIMEFRAME ===
-  interval: "15m", // 15-minute candles
-  candleLimit: 100, // Number of historical candles to fetch
+  interval: "15m", // 15-minute candles (legacy, not used in BOS strategy)
+  candleLimit: 100, // Number of historical candles to fetch (legacy)
+
+  // Multi-timeframe for BOS Strategy
+  timeframes: {
+    higher: "4h", // Higher timeframe for trend analysis
+    lower: "5m", // Lower timeframe for confirmation
+    higherCandleLimit: 500, // Request more candles for EMA200 (API may limit to ~500)
+    lowerCandleLimit: 100, // Candles for 5M analysis
+  },
 
   // === INDICATOR PARAMETERS ===
   indicators: {
     emaFast: 20, // Fast EMA period
     emaSlow: 50, // Slow EMA period
+    ema200: 50, // EMA para tendencia en 4H (50 si hay límites de API, 200 es ideal)
 
     macd: {
       fast: 12, // MACD fast period
@@ -35,6 +44,15 @@ module.exports = {
     volume: {
       period: 20, // Average volume lookback period
       spikeMultiplier: 1.3, // Volume must be 30% above average (1.5 = 50%, 1.2 = 20%)
+    },
+
+    // BOS Strategy specific
+    bos: {
+      lookback4H: 20, // Candles to look back for structure on 4H
+      lookback5M: 10, // Candles to look back for structure on 5M
+      fibRetracementLow: 0.5, // 50% Fibonacci level
+      fibRetracementHigh: 0.618, // 61.8% Fibonacci level
+      riskRewardRatio: 2, // Default R:R ratio (1:2)
     },
   },
 

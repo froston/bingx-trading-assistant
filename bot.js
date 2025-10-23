@@ -1,5 +1,5 @@
 const BingXAPI = require("./bingx-api");
-const TrendBreakoutStrategy = require("./strategies/trend-breakout");
+const BOSStrategy = require("./strategies/bos-strategy");
 const RiskManager = require("./risk-manager");
 const config = require("./config");
 const fs = require("fs");
@@ -13,7 +13,7 @@ class TradingBot {
   constructor() {
     this.api = new BingXAPI();
     this.riskManager = new RiskManager(config);
-    this.strategy = new TrendBreakoutStrategy();
+    this.strategy = new BOSStrategy();
     this.isRunning = false;
     this.currentPosition = null;
     this.lastAnalysis = null;
@@ -41,9 +41,10 @@ class TradingBot {
    * Start the trading bot
    */
   async start() {
-    this.log("🚀 Iniciando Bot de Trading BingX...");
+    this.log("🚀 Iniciando Bot de Trading BingX (Estrategia BOS)...");
     this.log(`📊 Símbolo: ${config.symbol}`);
-    this.log(`⏱️ Intervalo: ${config.interval}`);
+    this.log(`⏱️ Timeframe Superior: ${config.timeframes.higher}`);
+    this.log(`⏱️ Timeframe Inferior: ${config.timeframes.lower}`);
     this.log(
       `${
         config.bot.testMode
@@ -103,30 +104,56 @@ class TradingBot {
       return;
     }
 
-    // Fetch latest market data
-    const candles = await this.api.getKlines(
+    // Fetch latest market data for both timeframes
+    const candles4H = await this.api.getKlines(
       config.symbol,
-      config.interval,
-      config.candleLimit
+      config.timeframes.higher,
+      config.timeframes.higherCandleLimit
     );
 
-    if (!candles || candles.length < config.indicators.emaSlow + 10) {
-      this.log("⚠️ Datos de velas insuficientes");
+    const candles5M = await this.api.getKlines(
+      config.symbol,
+      config.timeframes.lower,
+      config.timeframes.lowerCandleLimit
+    );
+
+    const minCandles4H = Math.max(config.indicators.ema200 + 10, 60);
+    if (!candles4H || candles4H.length < minCandles4H) {
+      this.log(
+        `⚠️ Datos de velas 4H insuficientes: obtenidas ${
+          candles4H?.length || 0
+        }, requeridas ${minCandles4H}`
+      );
+      this.log(
+        `   Nota: La API puede tener límites. EMA actual: ${config.indicators.ema200}`
+      );
       return;
     }
 
-    this.log(`📈 Obtenidas ${candles.length} velas`);
+    if (!candles5M || candles5M.length < 30) {
+      this.log(
+        `⚠️ Datos de velas 5M insuficientes: obtenidas ${
+          candles5M?.length || 0
+        }, requeridas 30`
+      );
+      return;
+    }
+
     this.log(
-      `🪙 Precio Actual [${config.symbol}]: $${candles[
-        candles.length - 1
+      `📈 Obtenidas ${candles4H.length} velas 4H y ${candles5M.length} velas 5M`
+    );
+    this.log(
+      `🪙 Precio Actual [${config.symbol}]: $${candles4H[
+        candles4H.length - 1
       ].close.toFixed(2)}`
     );
 
-    // Analyze market
-    const analysis = this.strategy.analyze(candles, config);
+    // Analyze market (multi-timeframe)
+    const analysis = this.strategy.analyze(candles4H, candles5M, config);
     this.lastAnalysis = analysis;
 
-    this.displayIndicators(analysis.indicators);
+    this.displayIndicators(analysis.indicators4H, analysis.indicators5M);
+    this.displayStrategyState(analysis.state);
 
     // Get current positions
     const positions = await this.api.getPositions(config.symbol);
@@ -140,7 +167,7 @@ class TradingBot {
       // Check if we should exit based on indicators
       const exitSignal = this.strategy.shouldExitOnIndicator(
         this.currentPosition,
-        analysis.indicators
+        analysis.indicators4H
       );
       if (exitSignal.exit) {
         this.log(`🚪 Señal de salida detectada: ${exitSignal.reason}`);
@@ -179,15 +206,65 @@ class TradingBot {
   /**
    * Display current indicator values
    */
-  displayIndicators(indicators) {
-    this.log("📊 Indicadores Técnicos:");
-    this.log(`   EMA20: ${indicators.emaFast?.toFixed(2) || "N/D"}`);
-    this.log(`   EMA50: ${indicators.emaSlow?.toFixed(2) || "N/D"}`);
-    this.log(`   MACD: ${indicators.macd?.macd?.toFixed(4) || "N/D"}`);
-    this.log(`   Señal: ${indicators.macd?.signal?.toFixed(4) || "N/D"}`);
-    this.log(`   RSI: ${indicators.rsi?.toFixed(2) || "N/D"}`);
-    this.log(`   ATR: ${indicators.atr?.toFixed(2) || "N/D"}`);
-    this.log(`   Pico de Volumen: ${indicators.volumeSpike ? "SÍ" : "NO"}`);
+  displayIndicators(indicators4H, indicators5M) {
+    this.log("📊 Indicadores Técnicos 4H:");
+    this.log(`   EMA200: ${indicators4H.ema200?.toFixed(2) || "N/D"}`);
+    this.log(`   Precio: ${indicators4H.currentPrice?.toFixed(2) || "N/D"}`);
+    this.log(`   ATR: ${indicators4H.atr?.toFixed(2) || "N/D"}`);
+
+    this.log("📊 Indicadores Técnicos 5M:");
+    this.log(`   Precio: ${indicators5M.currentPrice?.toFixed(2) || "N/D"}`);
+    this.log(`   ATR: ${indicators5M.atr?.toFixed(2) || "N/D"}`);
+  }
+
+  /**
+   * Display BOS strategy state
+   */
+  displayStrategyState(state) {
+    this.log("🎯 Estado de Estrategia BOS:");
+    this.log(`   Tendencia 4H: ${state.trend4H || "N/D"}`);
+
+    if (state.bos4H && state.bos4H.detected) {
+      this.log(
+        `   BOS 4H: ${
+          state.bos4H.type
+        } detectado en $${state.bos4H.breakLevel.toFixed(2)}`
+      );
+      this.log(
+        `   Impulso 4H: $${state.bos4H.impulse.start.toFixed(
+          2
+        )} → $${state.bos4H.impulse.end.toFixed(
+          2
+        )} (${state.bos4H.impulse.size.toFixed(2)})`
+      );
+    } else {
+      this.log(`   BOS 4H: No detectado`);
+    }
+
+    if (state.retracementZone4H) {
+      this.log(
+        `   Zona Retroceso 4H: $${state.retracementZone4H.low.toFixed(
+          2
+        )} - $${state.retracementZone4H.high.toFixed(2)}`
+      );
+      this.log(
+        `   En Zona de Retroceso: ${state.inRetracementZone ? "SÍ ✓" : "NO"}`
+      );
+    }
+
+    if (state.bos5M && state.bos5M.detected) {
+      this.log(
+        `   BOS 5M: ${
+          state.bos5M.type
+        } confirmado en $${state.bos5M.breakLevel.toFixed(2)}`
+      );
+    }
+
+    if (state.entryProposed) {
+      this.log(`   💡 Entrada Propuesta: $${state.entryPrice.toFixed(2)}`);
+      this.log(`   🛡️ Stop Loss: $${state.stopLoss.toFixed(2)}`);
+      this.log(`   🎯 Take Profit: $${state.takeProfit.toFixed(2)}`);
+    }
   }
 
   /**
@@ -237,23 +314,21 @@ class TradingBot {
         return;
       }
 
-      // Calculate stop loss and take profit
-      const entryPrice = indicators.currentPrice;
-      const stopLoss = this.strategy.calculateStopLoss(
-        type,
-        entryPrice,
-        indicators.atr,
-        indicators.swingLow,
-        indicators.swingHigh,
-        config
-      );
-
-      const takeProfit = this.strategy.calculateTakeProfit(
-        type,
-        entryPrice,
-        stopLoss,
-        config
-      );
+      // For BOS strategy, entry/SL/TP are already calculated in the strategy
+      const entryPrice = indicators.entryPrice || indicators.currentPrice;
+      const stopLoss =
+        indicators.stopLoss ||
+        this.strategy.calculateStopLoss(
+          type,
+          entryPrice,
+          indicators.atr,
+          indicators.swingLow,
+          indicators.swingHigh,
+          config
+        );
+      const takeProfit =
+        indicators.takeProfit ||
+        this.strategy.calculateTakeProfit(type, entryPrice, stopLoss, config);
 
       // Calculate position size
       const positionSize = this.riskManager.calculatePositionSize(
@@ -390,7 +465,9 @@ class TradingBot {
         this.logTradeToFile({
           action: "EXIT",
           type: this.currentPosition.side,
-          exitPrice: this.lastAnalysis?.indicators?.currentPrice,
+          exitPrice:
+            this.lastAnalysis?.indicators4H?.currentPrice ||
+            this.lastAnalysis?.indicators5M?.currentPrice,
           pnl: this.currentPosition.unrealizedProfit,
           orderId: result.orderId,
           positionId: this.currentPosition.positionId,
@@ -398,6 +475,8 @@ class TradingBot {
           timestamp: new Date().toLocaleString(),
         });
 
+        // Reset strategy state after closing position
+        this.strategy.resetState();
         this.currentPosition = null;
       } else {
         this.log(`❌ Error al cerrar posición: ${result.error}`);

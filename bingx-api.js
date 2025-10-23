@@ -220,6 +220,125 @@ class BingXAPI {
   }
 
   /**
+   * Place a LIMIT order at a specific price
+   * Useful for BOS strategy where we want to enter at specific retracement levels
+   */
+  async placeLimitOrder(
+    symbol,
+    side,
+    quantity,
+    limitPrice,
+    stopLoss = null,
+    takeProfit = null
+  ) {
+    try {
+      const endpoint = "/openApi/swap/v2/trade/order";
+
+      const params = {
+        symbol,
+        side: side.toUpperCase(), // BUY or SELL
+        positionSide: side.toUpperCase() === "BUY" ? "LONG" : "SHORT",
+        type: "LIMIT",
+        price: parseFloat(limitPrice),
+        quantity,
+        timeInForce: "GTC", // Good Till Cancel
+      };
+
+      if (takeProfit) {
+        params.takeProfit = JSON.stringify({
+          type: "TAKE_PROFIT_MARKET",
+          stopPrice: parseFloat(takeProfit),
+          price: parseFloat(takeProfit),
+          workingType: "MARK_PRICE",
+        });
+      }
+
+      if (stopLoss) {
+        params.stopLoss = JSON.stringify({
+          type: "STOP_MARKET",
+          stopPrice: parseFloat(stopLoss),
+          price: parseFloat(stopLoss),
+          workingType: "MARK_PRICE",
+        });
+      }
+
+      const response = await this.request("POST", endpoint, params);
+
+      if (response.code === 0 && response.data) {
+        return {
+          success: true,
+          orderId: response.data.order?.orderId,
+          symbol,
+          side,
+          quantity,
+          limitPrice,
+        };
+      }
+
+      return { success: false, error: response.msg };
+    } catch (error) {
+      console.error("Error al colocar orden LIMIT:", error.message);
+      return { success: false, error: error.message };
+    }
+  }
+
+  /**
+   * Cancel an open order by order ID
+   */
+  async cancelOrder(symbol, orderId) {
+    try {
+      const endpoint = "/openApi/swap/v2/trade/order";
+      const params = {
+        symbol,
+        orderId,
+      };
+
+      const response = await this.request("DELETE", endpoint, params);
+
+      if (response.code === 0) {
+        return {
+          success: true,
+          orderId,
+        };
+      }
+
+      return { success: false, error: response.msg };
+    } catch (error) {
+      console.error("Error al cancelar orden:", error.message);
+      return { success: false, error: error.message };
+    }
+  }
+
+  /**
+   * Get all open orders for a symbol
+   */
+  async getOpenOrders(symbol) {
+    try {
+      const endpoint = "/openApi/swap/v2/trade/openOrders";
+      const params = { symbol };
+
+      const response = await this.request("GET", endpoint, params);
+
+      if (response.code === 0 && response.data) {
+        return response.data.map((order) => ({
+          orderId: order.orderId,
+          symbol: order.symbol,
+          side: order.side,
+          type: order.type,
+          price: parseFloat(order.price),
+          quantity: parseFloat(order.origQty),
+          status: order.status,
+        }));
+      }
+
+      return [];
+    } catch (error) {
+      console.error("Error al obtener órdenes abiertas:", error.message);
+      return [];
+    }
+  }
+
+  /**
    * Close position by position ID
    */
   async closePosition(positionId) {

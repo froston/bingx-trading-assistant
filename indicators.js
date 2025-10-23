@@ -183,6 +183,7 @@ class Indicators {
     return {
       emaFast: this.calculateEMA(closes, config.indicators.emaFast),
       emaSlow: this.calculateEMA(closes, config.indicators.emaSlow),
+      ema200: this.calculateEMA(closes, config.indicators.ema200 || 200),
       macd: this.calculateMACD(
         closes,
         config.indicators.macd.fast,
